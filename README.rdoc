@@ -1,0 +1,3 @@
+= SpanSlicer
+
+A jQuery UI widget for dividing up a span of something (typically time) into slices. I'm sorry, but I really don't know how better to describe it. Coming soon.
