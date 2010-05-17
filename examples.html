@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>SpanSlicer Examples</title>
+    <link rel="stylesheet" href="stylesheets/style.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    <script src="js/jquery-1.4.2.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/jquery-ui-draggable.min.js" type="text/javascript" charset="utf-8"></script>
+  </head>
+  <body>
+    <div id="ruler"></div>
+    <div id="spans"></div>
+    <script type="text/javascript" charset="utf-8">
+      var selectedIndex = 0;
+      var nextOWidth = 0;
+      var startPost = 0;
+      var prevSpan = null;
+      var nextSpan = null;
+      var handleString = '<div class="handle" style="position:absolute;width:8px;height:8px;border:1px solid;background-color:#bb0000;left:-4px;top:40px;"></div>';
+      
+      $(function() {
+        buildRuler();
+        buildSpans();
+        $('.span').bind('click',selectSpan);
+        $('#split_button').bind('click',splitSpan);
+        $('#delete_button').bind('click',deleteSpan);
+        enableDrag($('.span_div:has(.handle)'));
+      });
+      
+      function buildRuler() {
+        $("#ruler").append($('<div class="mark_div tall"></div>'));
+        for (var i = 0; i < 96; i++) {
+          $('#ruler').append($('<div class="ruler_block"><div class="inner"></div></div>'));
+          var div_class = (i % 4 == 3) ? ' tall':''
+          $('#ruler').append($('<div class="mark_div'+div_class+'"></div>'));
+        }
+      }
+      
+      function buildSpans() {
+        
+      }
+      
+      function splitSpan(event) {
+        var spanToSplit = $('.span')[selectedIndex];
+        if ($(spanToSplit).attr('data-width') != '1') {
+          var widthCount = Number($(spanToSplit).attr('data-width'));
+          var offCount = Number($(spanToSplit).attr('data-offset'));
+          var leftSpan = $('<div style="position:absolute;left:'+(offCount*11+1).toString()+'px;width:'+(Math.floor(widthCount/2)*11 - 3).toString()+'px;background-color:#cccccc;height:20px;padding:1px;" class="span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="inner" style="background-color:#ccffff;height:20px;"></div></div>');
+          var rightSpan = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*11+1).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*11) - 3).toString()+'px;background-color:#cccccc;height:20px;padding:1px;" class="span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="inner" style="background-color:#ffffff;height:20px;"></div></div>');
+          var spanDiv = $('<div style="position:absolute;width:1px;height:35px;background-color:#000000;left:'+((offCount+Math.floor(widthCount/2))*11).toString()+'px" class="span_div"></div>');
+          if (Math.floor(widthCount/2) > 1 || (widthCount - Math.floor(widthCount/2)) > 1) {
+            $(spanDiv).append($(handleString));
+            enableDrag($(spanDiv));
+          }
+          rightSpan.bind('click',selectSpan);
+          leftSpan.bind('click',selectSpan);
+          $(spanToSplit).after(rightSpan).after(spanDiv).after(leftSpan);
+          $(spanToSplit).remove();
+          stripHandles();
+        }
+      }
+
+      function deleteSpan() {
+        if ($('.span').length > 1) {
+          var spanToDelete = $($('.span')[selectedIndex]);
+          if (selectedIndex == 0) {
+            var nextSpan = $($('.span')[selectedIndex + 1]);
+            nextSpan.css('left',spanToDelete.position().left);
+            nextSpan.css('width',nextSpan.width()+spanToDelete.width()+3);
+            nextSpan.attr('data-width',Number(nextSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
+            nextSpan.attr('data-offset',0);
+            nextSpan.find('.inner').css('background-color','#ccffff');
+            var div = spanToDelete.next();
+            div.draggable("destroy");
+            div.remove();
+            spanToDelete.remove();
+          } else {
+            var prevSpan = $($('.span')[selectedIndex - 1]);
+            prevSpan.css('width',prevSpan.width()+spanToDelete.width()+3);
+            prevSpan.attr('data-width',Number(prevSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
+            prevSpan.find('.inner').css('background-color','#ccffff');
+            var div = spanToDelete.prev();
+            div.draggable("destroy");
+            div.remove();
+            spanToDelete.remove();
+            selectedIndex--;
+          }
+          stripHandles();
+        } else {
+          alert("You can't delete your last timespan!");
+        }
+      }
+
+      function enableDrag(set) {
+        set.draggable({
+          axis:'x',
+          handle:'.handle',
+          grid: [11,1],
+          containment: [11,1,1056,1],
+          drag: handleDrag,
+          start: handleDragStart,
+          stop: handleDragRelease
+        });
+      }
+
+      function handleDrag(event,ui) {
+        prevSpan.css('width',$(event.target).position().left-prevSpan.position().left-2);
+        nextSpan.css('left',$(event.target).position().left+1);
+        nextSpan.css('width',nextOWidth+(startPos-$(event.target).position().left));
+      }
+
+      function handleDragRelease(event,ui) {
+        prevSpan.attr('data-width',(prevSpan.width() + 3)/11);
+        nextSpan.attr('data-width',(nextSpan.width() + 3)/11);
+        nextSpan.attr('data-offset',(nextSpan.position().left - 1)/11);
+        stripHandles();
+      }
+
+      function handleDragStart(event,ui) {
+        prevSpan = $(event.target).prev();
+        nextSpan = $(event.target).next();
+        var prevDiv = $(event.target).prevAll('.span_div:first');
+        var leftBound = (prevDiv.length > 0) ? $(prevDiv[0]).position().left + 11 : 11;
+        var nextDiv = $(event.target).nextAll('.span_div:first');
+        var rightBound = (nextDiv.length > 0) ? $(nextDiv[0]).position().left : 1056;
+        $(event.target).draggable("option", 'containment', [leftBound, 1, rightBound, 1]);
+        startPos = $(event.target).position().left;
+        nextOWidth = $(event.target).next().width();
+      }
+
+      function stripHandles() {
+        $(".span_div").each(function(i) {
+          var handle = $(this).find('.handle');
+          if ($(this).next().attr('data-width') == '1' && $(this).prev().attr('data-width') == '1') {
+            handle.remove();
+            $(this).draggable("destroy");
+          } else if (handle.length == 0) {
+            $(this).append($(handleString));
+            enableDrag($(this));
+          }
+        });
+      }
+
+      function selectSpan(event) {
+        $('.span').each(function(i) {
+          if (this == event.currentTarget) {
+            $(this).find('.inner').css('background-color','#ccffff');
+            selectedIndex = i;
+          } else {
+            $(this).find('.inner').css('background-color','#ffffff');
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
