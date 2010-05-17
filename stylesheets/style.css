@@ -1,9 +1,14 @@
+#spanner {
+  height:100px;
+}
+
 #ruler {
   position: relative;
 }
 
 #spans {
-  
+  clear: both;
+  position: relative;
 }
 
 .ruler_block {
@@ -31,4 +36,39 @@
 .mark_div.tall {
   height:35px;
   background-color:#000000;
+}
+
+.span {
+  position: absolute;
+  background-color: #cccccc;
+  height: 20px;
+  top: 0px;
+  padding: 1px;
+}
+
+.span .inner {
+  background-color: #ffffff;
+  height: 20px;
+}
+
+.span .inner.selected {
+  background-color: #ccffff;
+}
+
+.span_div {
+  position:absolute;
+  width:1px;
+  top:0px;
+  height:35px;
+  background-color:#000000;
+}
+
+.handle {
+  position:absolute;
+  width:8px;
+  height:8px;
+  border:1px solid;
+  background-color:#bb0000;
+  left:-4px;
+  top:40px;
 }
