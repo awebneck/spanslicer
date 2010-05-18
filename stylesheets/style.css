@@ -14,7 +14,6 @@
 .ss_ruler_block {
   float:left;
   padding:1px;
-  width:8px;
   height:20px;
   background-color:#cccccc;
   border-top:1px solid;
@@ -28,7 +27,6 @@
 
 .ss_mark_div {
   float:left;
-  width:1px;
   height:24px;
   background-color:#777777;
 }
@@ -43,7 +41,6 @@
   background-color: #cccccc;
   height: 20px;
   top: 0px;
-  padding: 1px;
 }
 
 .ss_span .ss_inner {
@@ -57,7 +54,6 @@
 
 .ss_span_div {
   position:absolute;
-  width:1px;
   top:0px;
   height:35px;
   background-color:#000000;
@@ -66,7 +62,7 @@
 .ss_handle {
   position:absolute;
   width:8px;
-  height:8px;
+  height:20px;
   border:1px solid;
   background-color:#bb0000;
   left:-4px;
