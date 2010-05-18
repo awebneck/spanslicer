@@ -2,16 +2,16 @@
   $.spanslicer = {
     reference: function(selector) {
       var o = $(selector); 
-			if(!o.size()) o = $("#" + obj);
-			if(!o.size()) return null; 
-			o = (o.is(".ss_spanslicer")) ? o.attr("id") : o.parents(".ss_spanslicer:eq(0)").attr("id"); 
-			return ssSpanslicer.inst[o] || null;
+      if(!o.size()) o = $("#" + obj);
+      if(!o.size()) return null; 
+      o = (o.is(".ss_spanslicer")) ? o.attr("id") : o.parents(".ss_spanslicer:eq(0)").attr("id"); 
+      return ssSpanslicer.inst[o] || null;
     }
   }
   
   $.fn.spanslicer = function (opts) {
-		return this.each(function() {
-		  var defaults = {
+    return this.each(function() {
+      var defaults = {
         numDivisions: 96,
         tickEvery: 4,
         ticks: true,
@@ -21,11 +21,11 @@
         spanWidth: 8,
         spanPadding: 1
       };
-			var conf = $.extend(defaults,opts);
-			new ssSpanslicer().init(this, conf);
-		});
-	};
-	
+      var conf = $.extend(defaults,opts);
+      new ssSpanslicer().init(this, conf);
+    });
+  };
+  
   function ssSpanslicer () {
     return {
       element: null,
