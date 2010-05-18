@@ -1,0 +1,70 @@
+#ss_spanner {
+  height:100px;
+}
+
+#ss_ruler {
+  position: relative;
+}
+
+#ss_spans {
+  clear: both;
+  position: relative;
+}
+
+.ss_ruler_block {
+  float:left;
+  padding:1px;
+  height:20px;
+  background-color:#cccccc;
+  border-top:1px solid;
+  border-bottom:1px solid;
+}
+
+.ss_ruler_block .ss_inner {
+  background-color:#ffffff;
+  height:20px;
+}
+
+.ss_mark_div {
+  float:left;
+  height:24px;
+  background-color:#777777;
+}
+
+.ss_mark_div.ss_tall {
+  height:35px;
+  background-color:#000000;
+}
+
+.ss_span {
+  position: absolute;
+  background-color: #cccccc;
+  height: 20px;
+  top: 0px;
+}
+
+.ss_span .ss_inner {
+  background-color: #ffffff;
+  height: 20px;
+}
+
+.ss_span .ss_inner.ss_selected {
+  background-color: #ccffff;
+}
+
+.ss_span_div {
+  position:absolute;
+  top:0px;
+  height:35px;
+  background-color:#000000;
+}
+
+.ss_handle {
+  position:absolute;
+  width:8px;
+  height:20px;
+  border:1px solid;
+  background-color:#bb0000;
+  left:-4px;
+  top:40px;
+}
