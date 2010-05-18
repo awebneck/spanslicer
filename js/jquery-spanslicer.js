@@ -160,31 +160,31 @@
         });
       },
       splitSpan: function(event) {
-        var spanToSplit = this.element.find('.ss_span')[this.selectedIndex];
+        var spanToSplit = _this.element.find('.ss_span')[_this.selectedIndex];
         if ($(spanToSplit).attr('data-width') != '1') {
           var widthCount = Number($(spanToSplit).attr('data-width'));
           var offCount = Number($(spanToSplit).attr('data-offset'));
-          var leftSpan = $('<div style="left:'+(offCount*(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth)+this.options.tickWidth).toString()+'px;width:'+(Math.floor(widthCount/2)*(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth) - (2*this.options.spanPadding+this.options.tickWidth)).toString()+'px;padding:'+this.options.spanPadding+'px;" class="ss_span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="ss_inner ss_selected"></div></div>');
-          var rightSpan = $('<div style="left:'+((offCount+Math.floor(widthCount/2))*(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth)+this.options.tickWidth).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth)) - (2*this.options.spanPadding+this.options.tickWidth)).toString()+'px;padding:'+this.options.spanPadding+'px;" class="ss_span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="ss_inner"></div></div>');
-          var spanDiv = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth)).toString()+'px;width:'+this.options.tickWidth+'px;" class="ss_span_div"></div>');
+          var leftSpan = $('<div style="left:'+(offCount*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)+_this.options.tickWidth).toString()+'px;width:'+(Math.floor(widthCount/2)*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth) - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="ss_inner ss_selected"></div></div>');
+          var rightSpan = $('<div style="left:'+((offCount+Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)+_this.options.tickWidth).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)) - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="ss_inner"></div></div>');
+          var spanDiv = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;width:'+_this.options.tickWidth+'px;" class="ss_span_div"></div>');
           if (Math.floor(widthCount/2) > 1 || (widthCount - Math.floor(widthCount/2)) > 1) {
             $(spanDiv).append($('<div class="ss_handle"></div>'));
-            this.enableDrag($(spanDiv));
+            _this.enableDrag($(spanDiv));
           }
-          rightSpan.bind('click',this.selectSpan);
-          leftSpan.bind('click',this.selectSpan);
+          rightSpan.bind('click',_this.selectSpan);
+          leftSpan.bind('click',_this.selectSpan);
           $(spanToSplit).after(rightSpan).after(spanDiv).after(leftSpan);
           $(spanToSplit).remove();
-          this.stripHandles();
+          _this.stripHandles();
         }
       },
       deleteSpan: function() {
-        if (this.element.find('.ss_span').length > 1) {
-          var spanToDelete = $(this.element.find('.ss_span')[this.selectedIndex]);
-          if (this.selectedIndex == 0) {
-            var nextSpan = $(this.element.find('.ss_span')[this.selectedIndex + 1]);
+        if (_this.element.find('.ss_span').length > 1) {
+          var spanToDelete = $(_this.element.find('.ss_span')[_this.selectedIndex]);
+          if (_this.selectedIndex == 0) {
+            var nextSpan = $(_this.element.find('.ss_span')[_this.selectedIndex + 1]);
             nextSpan.css('left',spanToDelete.position().left);
-            nextSpan.css('width',nextSpan.width()+spanToDelete.width()+2*this.options.spanPadding+this.options.tickWidth);
+            nextSpan.css('width',nextSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
             nextSpan.attr('data-width',Number(nextSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
             nextSpan.attr('data-offset',0);
             nextSpan.find('.ss_inner').addClass("ss_selected");
@@ -193,17 +193,17 @@
             div.remove();
             spanToDelete.remove();
           } else {
-            var prevSpan = $(this.element.find('.ss_span')[this.selectedIndex - 1]);
-            prevSpan.css('width',prevSpan.width()+spanToDelete.width()+2*this.options.spanPadding+this.options.tickWidth);
+            var prevSpan = $(_this.element.find('.ss_span')[_this.selectedIndex - 1]);
+            prevSpan.css('width',prevSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
             prevSpan.attr('data-width',Number(prevSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
             prevSpan.find('.ss_inner').addClass("ss_selected");
             var div = spanToDelete.prev();
             div.dyndraggable("destroy");
             div.remove();
             spanToDelete.remove();
-            this.selectedIndex--;
+            _this.selectedIndex--;
           }
-          this.stripHandles();
+          _this.stripHandles();
         } else {
           alert("You can't delete your last timespan!");
         }
