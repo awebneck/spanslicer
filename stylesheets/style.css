@@ -1,17 +1,17 @@
-#spanner {
+#ss_spanner {
   height:100px;
 }
 
-#ruler {
+#ss_ruler {
   position: relative;
 }
 
-#spans {
+#ss_spans {
   clear: both;
   position: relative;
 }
 
-.ruler_block {
+.ss_ruler_block {
   float:left;
   padding:1px;
   width:8px;
@@ -21,24 +21,24 @@
   border-bottom:1px solid;
 }
 
-.ruler_block .inner {
+.ss_ruler_block .ss_inner {
   background-color:#ffffff;
   height:20px;
 }
 
-.mark_div {
+.ss_mark_div {
   float:left;
   width:1px;
   height:24px;
   background-color:#777777;
 }
 
-.mark_div.tall {
+.ss_mark_div.ss_tall {
   height:35px;
   background-color:#000000;
 }
 
-.span {
+.ss_span {
   position: absolute;
   background-color: #cccccc;
   height: 20px;
@@ -46,16 +46,16 @@
   padding: 1px;
 }
 
-.span .inner {
+.ss_span .ss_inner {
   background-color: #ffffff;
   height: 20px;
 }
 
-.span .inner.selected {
+.ss_span .ss_inner.ss_selected {
   background-color: #ccffff;
 }
 
-.span_div {
+.ss_span_div {
   position:absolute;
   width:1px;
   top:0px;
@@ -63,7 +63,7 @@
   background-color:#000000;
 }
 
-.handle {
+.ss_handle {
   position:absolute;
   width:8px;
   height:8px;
