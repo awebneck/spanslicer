@@ -12,11 +12,12 @@
   </head>
   <body>
     <div id="spanner_1"></div>
-    <div id="spanner_2"></div>
+    <input type="button" name="" value="Split selected" id="split_button"/> <input type="button" name="" value="Delete selected" id="delete_button"/>
     <script type="text/javascript" charset="utf-8">
       $(function() {
         $("#spanner_1").spanslicer();
-        $("#spanner_2").spanslicer();
+        $("#split_button").bind('click',$.spanslicer.reference("#spanner_1").splitSpan);
+        $("#delete_button").bind('click',$.spanslicer.reference("#spanner_1").deleteSpan);
       });
     </script>
   </body>
