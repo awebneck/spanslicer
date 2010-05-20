@@ -85,7 +85,7 @@
       self.nextSpan.attr('data-width',(self.nextSpan.width() + 2*self.options.spanPadding+self.options.tickWidth)/self.unitWidth);
       self.nextSpan.attr('data-offset',(self.nextSpan.position().left - self.options.tickWidth)/self.unitWidth);
       clearInterval(self.updateInt);
-      _stripHandles();
+      self._stripHandles();
     },
     _handleDragStart: function(event,ui) {
       var self = this;
@@ -113,7 +113,7 @@
         grid: [self.options.spanWidth+2*self.options.spanPadding+self.options.tickWidth,1],
         containment: [self.unitWidth,1,self.unitWidth*self.options.numDivisions,1],
         start: function(event,ui) { self._handleDragStart(event,ui) },
-        stop: function(event,ui) { self._handleDragStart(event,ui) }
+        stop: function(event,ui) { self._handleDragRelease(event,ui) }
       });
     },
     _selectSpan: function(event) {
