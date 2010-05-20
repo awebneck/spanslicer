@@ -35,12 +35,6 @@
       <script type="text/javascript" charset="utf-8">
         $(function() {
           $("#spanner_1").spanslicer();
-          $("#split_button_1").bind('click',function(event) {
-            $.spanslicer.splitSpan("#spanner_1");
-          });
-          $("#split_button_1").bind('click',function(event) {
-            $.spanslicer.deleteSpan("#spanner_1");
-          });
         });
       </script>
       <p>By default, the SpanSlicer starts with 96 divisions, with a tickmark every 4 divisions (this works great for diving a 24-hour day into 15-minute segments)</p>
@@ -76,12 +70,6 @@
       <script type="text/javascript" charset="utf-8">
         $(function() {
           $("#spanner_2").spanslicer();
-          $("#split_button_2").bind('click',function(event) {
-            $.spanslicer.splitSpan("#spanner_2");
-          });
-          $("#split_button_2").bind('click',function(event) {
-            $.spanslicer.deleteSpan("#spanner_2");
-          });
         });
       </script>
       <p>...or (b): Simply pass an array of the slicepoint indices as the "spans" option to the $.fn.spanslicer() function:</p>
@@ -105,12 +93,6 @@
           $("#spanner_3").spanslicer({
             spans: [0,23,25,45,78]
           });
-          $("#split_button_3").bind('click',function(event) {
-            $.spanslicer.splitSpan("#spanner_3");
-          });
-          $("#split_button_3").bind('click',function(event) {
-            $.spanslicer.deleteSpan("#spanner_3");
-          });
         });
       </script>
     </div>
@@ -118,22 +100,15 @@
     <h2>Customization</h2>
     <div class="example">
       <div id="spanner_4"></div>
-        <input type="button" name="" value="Split selected" id="split_button_4"/> <input type="button" name="" value="Delete selected" id="delete_button_4"/>
-        <script type="text/javascript" charset="utf-8">
-          $(function() {
-            $("#spanner_4").spanslicer({
-              numDivisions: 25,
-              tickEvery: 5
-            });
-            $("#split_button_4").bind('click',function(event) {
-              $.spanslicer.splitSpan("#spanner_4");
-            });
-            $("#split_button_4").bind('click',function(event) {
-              $.spanslicer.deleteSpan("#spanner_4");
-            });
+      <input type="button" name="" value="Split selected" id="split_button_4"/> <input type="button" name="" value="Delete selected" id="delete_button_4"/>
+      <script type="text/javascript" charset="utf-8">
+        $(function() {
+          $("#spanner_4").spanslicer({
+            numDivisions: 25,
+            tickEvery: 5
           });
-        </script>
-      </div>
+        });
+      </script>
     
       <div id="spanner_5"></div>
       <input type="button" name="" value="Split selected" id="split_button_5"/> <input type="button" name="" value="Delete selected" id="delete_button_5"/>
@@ -145,12 +120,6 @@
             spanWidth: 15,
             spanPadding: 2,
             tickWidth: 2
-          });
-          $("#split_button_5").bind('click',function(event) {
-            $.spanslicer.splitSpan("#spanner_5");
-          });
-          $("#split_button_5").bind('click',function(event) {
-            $.spanslicer.deleteSpan("#spanner_5");
           });
         });
       </script>
