@@ -6,6 +6,59 @@
       if(!o.size()) return null; 
       o = (o.is(".ss_spanslicer")) ? o.attr("id") : o.parents(".ss_spanslicer:eq(0)").attr("id"); 
       return ssSpanslicer.inst[o] || null;
+    },
+    splitSpan: function(selector) {
+      if (selector.data) selector = selector.data.obj;
+      _this = $.spanslicer.reference(selector);
+      var spanToSplit = _this.element.find('.ss_span')[_this.selectedIndex];
+      if ($(spanToSplit).attr('data-width') != '1') {
+        var widthCount = Number($(spanToSplit).attr('data-width'));
+        var offCount = Number($(spanToSplit).attr('data-offset'));
+        var leftSpan = $('<div style="left:'+(offCount*_this.unitWidth+_this.options.tickWidth).toString()+'px;width:'+(Math.floor(widthCount/2)*_this.unitWidth - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="ss_inner ss_selected"></div></div>');
+        var rightSpan = $('<div style="left:'+((offCount+Math.floor(widthCount/2))*_this.unitWidth+_this.options.tickWidth).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*_this.unitWidth) - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="ss_inner"></div></div>');
+        var spanDiv = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*_this.unitWidth).toString()+'px;width:'+_this.options.tickWidth+'px;" class="ss_span_div"></div>');
+        if (Math.floor(widthCount/2) > 1 || (widthCount - Math.floor(widthCount/2)) > 1) {
+          $(spanDiv).append($('<div class="ss_handle"></div>'));
+          _this.enableDrag($(spanDiv));
+        }
+        rightSpan.bind('click',_this.selectSpan);
+        leftSpan.bind('click',_this.selectSpan);
+        $(spanToSplit).after(rightSpan).after(spanDiv).after(leftSpan);
+        $(spanToSplit).remove();
+        _this.stripHandles();
+      }
+    },
+    deleteSpan: function() {
+      if (selector.data) selector = selector.data.obj;
+      _this = $.spanslicer.reference(selector);
+      if (_this.element.find('.ss_span').length > 1) {
+        var spanToDelete = $(_this.element.find('.ss_span')[_this.selectedIndex]);
+        if (_this.selectedIndex == 0) {
+          var nextSpan = $(_this.element.find('.ss_span')[_this.selectedIndex + 1]);
+          nextSpan.css('left',spanToDelete.position().left);
+          nextSpan.css('width',nextSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
+          nextSpan.attr('data-width',Number(nextSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
+          nextSpan.attr('data-offset',0);
+          nextSpan.find('.ss_inner').addClass("ss_selected");
+          var div = spanToDelete.next();
+          div.dyndraggable("destroy");
+          div.remove();
+          spanToDelete.remove();
+        } else {
+          var prevSpan = $(_this.element.find('.ss_span')[_this.selectedIndex - 1]);
+          prevSpan.css('width',prevSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
+          prevSpan.attr('data-width',Number(prevSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
+          prevSpan.find('.ss_inner').addClass("ss_selected");
+          var div = spanToDelete.prev();
+          div.dyndraggable("destroy");
+          div.remove();
+          spanToDelete.remove();
+          _this.selectedIndex--;
+        }
+        _this.stripHandles();
+      } else {
+        alert("You can't delete your last timespan!");
+      }
     }
   }
   
@@ -36,6 +89,7 @@
       prevSpan: null,
       nextSpan: null,
       updateInt: null,
+      unitWidth: null,
       handle: null,
       ruler: null,
       _this: null,
@@ -44,6 +98,7 @@
         this.element = $(elem);
         this.options = conf;
         if (!this.options.ticks) this.options.tickWidth = 0;
+        this.unitWidth = (this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth);
         if (this.options.ruler) {
           this.ruler = $('<div id="ss_ruler" style="position:relative;"></div>');
           this.element.before(this.ruler);
@@ -80,25 +135,25 @@
       buildSpans: function () {
         var children = (this.options.spans) ? this.options.spans : [];
         this.element.children().each(function(i) {
-          if (!_this.options.spans && $(this).attr('data-width') !=0 && $(this).attr('data-offset')) children.push({width:Number($(this).attr('data-width')),offset:Number($(this).attr('data-offset'))});
+          if (!_this.options.spans && $(this).attr('data-width') !=0 && $(this).attr('data-offset')) children.push(Number($(this).attr('data-offset')));
           $(this).remove();
         });
-        if (children.length == 0) children.push({width:this.options.numDivisions,offset:0});
+        if (children.length == 0) children.push(0);
         this.element.css('position','relative').css('clear','both');
-        var tickWidth = (this.options.ticks) ? this.options.tickWidth : 0;
-        var spanDiv = $('<div class="ss_span_div" style="width:'+tickWidth+'px;"></div>');
         for (var i = 0; i < children.length; i++) {
+          var width = (i < children.length-1) ? children[i+1]-children[i] : this.options.numDivisions - children[i];
           if (i > 0) {
+            var spanDiv = $('<div class="ss_span_div" style="left:'+(children[i]*this.unitWidth).toString()+'px;width:'+this.options.tickWidth+'px;"></div>');
             this.element.append(spanDiv);
-            if (children[i-1].width > 1 && children[i].width > 1) {
+            if (children[i] - children[i-1] > 1 || width > 1) {
               spanDiv.append($('<div class="ss_handle"></div>'));
             }
           }
           var class = (i == 0) ? ' ss_selected' : ''
-          this.element.append($('<div class="ss_span" data-width="'+children[i].width+
-            '" data-offset="'+children[i].offset+
-            '" style="position:absolute;left:'+(children[i].offset*(this.options.spanWidth+2*this.options.spanPadding+tickWidth)+tickWidth).toString()+
-            'px;width:'+(children[i].width*(this.options.spanWidth+2*this.options.spanPadding+tickWidth)-2*this.options.spanPadding-tickWidth).toString()+
+          this.element.append($('<div class="ss_span" data-width="'+width+
+            '" data-offset="'+children[i]+
+            '" style="position:absolute;left:'+(children[i]*this.unitWidth+this.options.tickWidth).toString()+
+            'px;width:'+(width*this.unitWidth-2*this.options.spanPadding-this.options.tickWidth).toString()+
             'px;padding:'+this.options.spanPadding+'px"><div class="ss_inner'+class+'"></div></div>'));
         }
       },
@@ -118,9 +173,9 @@
         _this.nextSpan.css('width',_this.nextOWidth+(_this.startPos-_this.handle.position().left));
       },
       handleDragRelease: function(event,ui) {
-        _this.prevSpan.attr('data-width',(_this.prevSpan.width() + 2*_this.options.spanPadding+_this.options.tickWidth)/(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth));
-        _this.nextSpan.attr('data-width',(_this.nextSpan.width() + 2*_this.options.spanPadding+_this.options.tickWidth)/(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth));
-        _this.nextSpan.attr('data-offset',(_this.nextSpan.position().left - _this.options.tickWidth)/(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth));
+        _this.prevSpan.attr('data-width',(_this.prevSpan.width() + 2*_this.options.spanPadding+_this.options.tickWidth)/_this.unitWidth);
+        _this.nextSpan.attr('data-width',(_this.nextSpan.width() + 2*_this.options.spanPadding+_this.options.tickWidth)/_this.unitWidth);
+        _this.nextSpan.attr('data-offset',(_this.nextSpan.position().left - _this.options.tickWidth)/_this.unitWidth);
         clearInterval(_this.updateInt);
         _this.stripHandles();
       },
@@ -129,9 +184,9 @@
         _this.nextSpan = $(event.target).next();
         _this.handle = $(event.target);
         var prevDiv = $(event.target).prevAll('.ss_span_div:first');
-        var leftBound = (prevDiv.length > 0) ? $(prevDiv[0]).position().left + (_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth) : (_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth);
+        var leftBound = (prevDiv.length > 0) ? $(prevDiv[0]).position().left + _this.unitWidth : _this.unitWidth;
         var nextDiv = $(event.target).nextAll('.ss_span_div:first');
-        var rightBound = (nextDiv.length > 0) ? $(nextDiv[0]).position().left : (_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)*_this.options.numDivisions;
+        var rightBound = (nextDiv.length > 0) ? $(nextDiv[0]).position().left : _this.unitWidth*_this.options.numDivisions;
         $(event.target).dyndraggable("option", 'containment', [leftBound, 1, rightBound, 1]);
         _this.startPos = $(event.target).position().left;
         _this.nextOWidth = $(event.target).next().width();
@@ -154,59 +209,10 @@
           axis:'x',
           handle:'.ss_handle',
           grid: [this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth,1],
-          containment: [this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth,1,(this.options.spanWidth+2*this.options.spanPadding+this.options.tickWidth)*this.options.numDivisions,1],
+          containment: [_this.unitWidth,1,_this.unitWidth*this.options.numDivisions,1],
           start: this.handleDragStart,
           stop: this.handleDragRelease
         });
-      },
-      splitSpan: function(event) {
-        var spanToSplit = _this.element.find('.ss_span')[_this.selectedIndex];
-        if ($(spanToSplit).attr('data-width') != '1') {
-          var widthCount = Number($(spanToSplit).attr('data-width'));
-          var offCount = Number($(spanToSplit).attr('data-offset'));
-          var leftSpan = $('<div style="left:'+(offCount*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)+_this.options.tickWidth).toString()+'px;width:'+(Math.floor(widthCount/2)*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth) - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="ss_inner ss_selected"></div></div>');
-          var rightSpan = $('<div style="left:'+((offCount+Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)+_this.options.tickWidth).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)) - (2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;padding:'+_this.options.spanPadding+'px;" class="ss_span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="ss_inner"></div></div>');
-          var spanDiv = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*(_this.options.spanWidth+2*_this.options.spanPadding+_this.options.tickWidth)).toString()+'px;width:'+_this.options.tickWidth+'px;" class="ss_span_div"></div>');
-          if (Math.floor(widthCount/2) > 1 || (widthCount - Math.floor(widthCount/2)) > 1) {
-            $(spanDiv).append($('<div class="ss_handle"></div>'));
-            _this.enableDrag($(spanDiv));
-          }
-          rightSpan.bind('click',_this.selectSpan);
-          leftSpan.bind('click',_this.selectSpan);
-          $(spanToSplit).after(rightSpan).after(spanDiv).after(leftSpan);
-          $(spanToSplit).remove();
-          _this.stripHandles();
-        }
-      },
-      deleteSpan: function() {
-        if (_this.element.find('.ss_span').length > 1) {
-          var spanToDelete = $(_this.element.find('.ss_span')[_this.selectedIndex]);
-          if (_this.selectedIndex == 0) {
-            var nextSpan = $(_this.element.find('.ss_span')[_this.selectedIndex + 1]);
-            nextSpan.css('left',spanToDelete.position().left);
-            nextSpan.css('width',nextSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
-            nextSpan.attr('data-width',Number(nextSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
-            nextSpan.attr('data-offset',0);
-            nextSpan.find('.ss_inner').addClass("ss_selected");
-            var div = spanToDelete.next();
-            div.dyndraggable("destroy");
-            div.remove();
-            spanToDelete.remove();
-          } else {
-            var prevSpan = $(_this.element.find('.ss_span')[_this.selectedIndex - 1]);
-            prevSpan.css('width',prevSpan.width()+spanToDelete.width()+2*_this.options.spanPadding+_this.options.tickWidth);
-            prevSpan.attr('data-width',Number(prevSpan.attr('data-width'))+Number(spanToDelete.attr('data-width')));
-            prevSpan.find('.ss_inner').addClass("ss_selected");
-            var div = spanToDelete.prev();
-            div.dyndraggable("destroy");
-            div.remove();
-            spanToDelete.remove();
-            _this.selectedIndex--;
-          }
-          _this.stripHandles();
-        } else {
-          alert("You can't delete your last timespan!");
-        }
       }
     }
   };
