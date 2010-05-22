@@ -41,6 +41,8 @@
       tempDiv.remove();
       this.element.css('height',totalHeight);
       this._enableDrag(this.element.find('.ss_span_div:has(.ss_handle)'));
+      self._trigger("created");
+      
       
       function _buildRuler(ruler_selector) {
         var firstDivClass = (self.options.ticks) ? ' ss_tall' : '';
@@ -86,6 +88,7 @@
       self.nextSpan.attr('data-offset',(self.nextSpan.position().left - self.options.tickWidth)/self.unitWidth);
       clearInterval(self.updateInt);
       self._stripHandles();
+      self._trigger("dragStopped",event);
     },
     _handleDragStart: function(event,ui) {
       var self = this;
@@ -104,6 +107,11 @@
         self.nextSpan.css('left',self.handle.position().left+self.options.tickWidth);
         self.nextSpan.css('width',self.nextOWidth+(self.startPos-self.handle.position().left));
       },10);
+      self._trigger("dragStarted",event);
+    },
+    _handleDrag: function(event,ui) {
+      var self = this;
+      self._trigger("dragged",event);
     },
     _enableDrag: function(set) {
       var self = this;
@@ -113,7 +121,8 @@
         grid: [self.options.spanWidth+2*self.options.spanPadding+self.options.tickWidth,1],
         containment: [self.unitWidth,1,self.unitWidth*self.options.numDivisions,1],
         start: function(event,ui) { self._handleDragStart(event,ui) },
-        stop: function(event,ui) { self._handleDragRelease(event,ui) }
+        stop: function(event,ui) { self._handleDragRelease(event,ui) },
+        drag: function(event,ui) { self._handleDrag(event,ui) }
       });
     },
     _selectSpan: function(event) {
@@ -126,6 +135,7 @@
           $(this).find('.ss_inner').removeClass("ss_selected");
         }
       });
+      self._trigger("selected");
     },
     _stripHandles: function() {
       var self = this;
@@ -140,12 +150,12 @@
         }
       });
     },
-    splitSelected: function() {
+    sliceSelected: function() {
       var self = this;
-      var spanToSplit = this.element.find('.ss_span')[this.selectedIndex];
-      if ($(spanToSplit).attr('data-width') != '1') {
-        var widthCount = Number($(spanToSplit).attr('data-width'));
-        var offCount = Number($(spanToSplit).attr('data-offset'));
+      var spanToSlice = this.element.find('.ss_span')[this.selectedIndex];
+      if ($(spanToSlice).attr('data-width') != '1') {
+        var widthCount = Number($(spanToSlice).attr('data-width'));
+        var offCount = Number($(spanToSlice).attr('data-offset'));
         var leftSpan = $('<div style="left:'+(offCount*this.unitWidth+this.options.tickWidth).toString()+'px;width:'+(Math.floor(widthCount/2)*this.unitWidth - (2*this.options.spanPadding+this.options.tickWidth)).toString()+'px;padding:'+this.options.spanPadding+'px;" class="ss_span" data-width="'+Math.floor(widthCount/2).toString()+'" data-offset="'+offCount.toString()+'"><div class="ss_inner ss_selected"></div></div>');
         var rightSpan = $('<div style="left:'+((offCount+Math.floor(widthCount/2))*this.unitWidth+this.options.tickWidth).toString()+'px;width:'+(((widthCount - Math.floor(widthCount/2))*this.unitWidth) - (2*this.options.spanPadding+this.options.tickWidth)).toString()+'px;padding:'+this.options.spanPadding+'px;" class="ss_span" data-width="'+(widthCount - Math.floor(widthCount/2)).toString()+'" data-offset="'+(offCount+Math.floor(widthCount/2)).toString()+'"><div class="ss_inner"></div></div>');
         var spanDiv = $('<div style="position:absolute;left:'+((offCount+Math.floor(widthCount/2))*this.unitWidth).toString()+'px;width:'+this.options.tickWidth+'px;" class="ss_span_div"></div>');
@@ -155,10 +165,11 @@
         }
         rightSpan.bind('click',function(event) { self._selectSpan(event) });
         leftSpan.bind('click',function(event) { self._selectSpan(event) });
-        $(spanToSplit).after(rightSpan).after(spanDiv).after(leftSpan);
-        $(spanToSplit).remove();
+        $(spanToSlice).after(rightSpan).after(spanDiv).after(leftSpan);
+        $(spanToSlice).remove();
         this._stripHandles();
       }
+      self._trigger("sliced");
     },
     deleteSelected: function() {
       var self = this;
@@ -188,8 +199,16 @@
         }
         self._stripHandles();
       } else {
-        alert("You can't delete your last timespan!");
       }
+      self._trigger("deleted");
+    },
+    destroy: function() {
+      var self = this;
+      self.element.removeClass('ss_spanslicer');
+      self.element.css('height',null);
+      self.element.html('');
+      if (self.ruler) self.ruler.remove();
+      self._trigger("destroyed");
     }
   });
 })(jQuery);
