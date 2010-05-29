@@ -72,12 +72,12 @@
               spanDiv.append($('<div class="ss_handle"></div>'));
             }
           }
-          var class = (i == 0) ? ' ss_selected' : ''
+          var klass = (i == 0) ? ' ss_selected' : ''
           self.element.append($('<div class="ss_span" data-width="'+width+
             '" data-offset="'+children[i]+
             '" style="position:absolute;left:'+(children[i]*self.unitWidth+self.options.tickWidth).toString()+
             'px;width:'+(width*self.unitWidth-2*self.options.spanPadding-self.options.tickWidth).toString()+
-            'px;padding:'+self.options.spanPadding+'px"><div class="ss_inner'+class+'"></div></div>'));
+            'px;padding:'+self.options.spanPadding+'px"><div class="ss_inner'+klass+'"></div></div>'));
         }
       }
     },
